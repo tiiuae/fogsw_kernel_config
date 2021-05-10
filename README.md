@@ -20,25 +20,44 @@ sudo apt-get update -y && apt-get install -y --install-recommends \
     libudev-dev \
     libpci-dev \
     libiberty-dev \
-    autoconf
+    autoconf \
+    git
 ```
 ## Download sources
+```
+git clone https://github.com/tiiuae/linux.git -b <branch>
+```
+<branch> = tc-x86-5.10-dev|tc-x86-5.10-sec
+<br>
+If you don't need hardened kernel version, then you can use the following command which will download kernel sources from Ubuntu repositories.
+<br>
 NOTE: do not run the following command with sudo.
 ```
 apt-get source linux-hwe-5.8-source-5.8.0
 ```
 
 ## Configure kernel
+```
+./config/defconfig_builder.sh -k ./linux -t x86_debug
+```
+Other configurations are: x86_kvm_release, x86_kvm_guest_release, x86_kvm_secure_release, x86_kvm_guest_secure_release.
+If you are using sources from Ubuntu repositories, then use the following command.
 NOTE: configuration used in the example is *x86_kvm_release*.
 ```
-./config/defconfig_builder.sh -k ./linux-hwe-5.8-5.8.0/ -t x86_kvm_release
+./config/defconfig_builder.sh -k ./linux-hwe-5.8-5.8.0/ -t x86_debug
 ```
 
 ## Build debian package containing Linux Kernel image
 ```
+cd linux/
+make x86_debug_defconfig
+fakeroot make-kpkg --initrd --revision=1 --jobs $(nproc) kernel_image
+```
+If you are using sources from Ubuntu repositories, then use the following command.
+```
 cd linux-hwe-5.8-5.8.0/
-make x86_kvm_release_defconfig
-fakeroot make-kpkg --initrd --revision=1.0.custom --jobs $(nproc) kernel_image
+make x86_debug_defconfig
+fakeroot make-kpkg --initrd --revision=1 --jobs $(nproc) kernel_image
 ```
 The output will be a debian package.
 
@@ -62,5 +81,9 @@ See [Build debian package containing Linux Kernel image](README.md#Build-debian-
 
 ## Copy debian package from container
 ```
-docker cp fogsw-kernel-builder:/build/linux-image-5.8.18_1.0.custom_amd64.deb linux-image-5.8.18_1.0.custom_amd64.deb
+docker cp fogsw-kernel-builder:/build/linux-image-5.10.32+_1_amd64.deb linux-image-5.10.32+_1_amd64.deb
+```
+Or the following command depending on the sources and platform you have used.
+```
+docker cp fogsw-kernel-builder:/build/linux-image-5.8.18_1_amd64.deb linux-image-5.8.18_1_amd64.deb
 ```

@@ -22,6 +22,7 @@ RUN sed -i "s/# deb-src http\:\/\/archive\.ubuntu\.com\/ubuntu\/ focal main rest
     libpci-dev \
     libiberty-dev \
     autoconf \
+    git \
     && apt-get clean \
     && apt-get autoremove -y
 
@@ -31,4 +32,4 @@ ENV LC_ALL C.UTF-8
 
 WORKDIR /build
 
-RUN apt-get source linux-hwe-5.8-source-5.8.0
+RUN git clone https://github.com/tiiuae/linux.git -b tc-x86-5.10-dev
