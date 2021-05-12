@@ -23,6 +23,7 @@ RUN sed -i "s/# deb-src http\:\/\/archive\.ubuntu\.com\/ubuntu\/ focal main rest
     libiberty-dev \
     autoconf \
     git \
+    gcc-9-plugin-dev \
     && apt-get clean \
     && apt-get autoremove -y
 
@@ -32,4 +33,4 @@ ENV LC_ALL C.UTF-8
 
 WORKDIR /build
 
-RUN git clone https://github.com/tiiuae/linux.git -b tc-x86-5.10-dev
+RUN git clone https://github.com/tiiuae/linux.git -b tc-x86-5.10-sec
