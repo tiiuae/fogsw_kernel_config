@@ -51,15 +51,13 @@ RUN apt-get update -y && apt-get install -y --install-recommends \
     git \
     gcc-9-plugin-dev \
     && rm -rf /var/lib/apt/lists/*
-    && apt-get clean \
-    && apt-get autoremove -y
 
 RUN sed -i "s/# deb-src http\:\/\/archive\.ubuntu\.com\/ubuntu\/ focal main restricted/deb-src http:\/\/archive.ubuntu.com\/ubuntu\/ focal main restricted/g" /etc/apt/sources.list \
     && sed -i "s/# deb-src http\:\/\/archive\.ubuntu\.com\/ubuntu\/ focal-updates main restricted/deb-src http:\/\/archive.ubuntu.com\/ubuntu\/ focal-updates main restricted/g" /etc/apt/sources.list \
     && apt-get update -y
 
 WORKDIR /build
-RUN git clone https://github.com/tiiuae/linux.git -b tc-x86-5.10-sec
+RUN apt-get source linux-hwe-5.11-source-5.11.0
 
 WORKDIR /build
 
@@ -78,4 +76,3 @@ RUN params="-m $(realpath .) " \
 
 FROM scratch
 COPY --from=fog-sw-builder /*.deb /packages/
-

@@ -28,7 +28,7 @@ jobs:
           set -eux
           mkdir bin
           pushd fogsw-ci-scripts
-          MODULE_GEN_CONFIG=x86_debug ./generate_deb.sh ../fogsw_kernel_config ../bin
+          MODULE_GEN_CONFIG=fog ./generate_deb.sh ../fogsw_kernel_config ../bin
           popd
 
       - name: Install jfrog CLI tool
