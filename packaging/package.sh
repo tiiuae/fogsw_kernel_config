@@ -3,13 +3,15 @@
 BUILD_DIR=$1
 # $2 is the MODULE_GEN_CONFIG variable coming from environment.
 KERNEL_CONFIG=$2
+# $3 is the target directory where to copy debian package.
 
-if [ -e linux ]; then
-    LINUX_SRC="/linux"
-elif [ -e linux-hwe-5.8-5.8.0 ]; then
-    LINUX_SRC="/linux-hwe-5.8-5.8.0"
-elif [ -e linux-hwe-5.11-5.11.0 ]; then
-    LINUX_SRC="/linux-hwe-5.11-5.11.0"
+
+if [ -e /${BUILD_DIR}/linux ]; then
+    LINUX_SRC="linux"
+elif [ -e /${BUILD_DIR}/linux-hwe-5.8-5.8.0 ]; then
+    LINUX_SRC="linux-hwe-5.8-5.8.0"
+elif [ -e /${BUILD_DIR}/linux-hwe-5.11-5.11.0 ]; then
+    LINUX_SRC="linux-hwe-5.11-5.11.0"
 else
     echo "ERROR: linux kernel sources are missing."
     exit 1
@@ -37,18 +39,22 @@ else
     echo "ERROR: linux kernel configuration parameter is not valid."
     exit 1
 fi
-if [ ! -e /${BUILD_DIR}${LINUX_SRC}/.config ]; then
-    echo "ERROR: Kernel .config file does not exist in /${BUILD_DIR}${LINUX_SRC}/."
+if [ ! -e /${BUILD_DIR}/${LINUX_SRC}/.config ]; then
+    echo "ERROR: Kernel .config file does not exist in /${BUILD_DIR}/${LINUX_SRC}/."
     exit 1
 fi
-sed -i "s/CONFIG_LOCALVERSION=.*/CONFIG_LOCALVERSION=\"${local_ver}\"/g" /${BUILD_DIR}${LINUX_SRC}/.config
+sed -i "s/CONFIG_LOCALVERSION=.*/CONFIG_LOCALVERSION=\"${local_ver}\"/g" /${BUILD_DIR}/${LINUX_SRC}/.config
 GIT_VER=$(git log --date=format:%Y%m%d --pretty=-git%cd.%h -n 1)
-#GIT_VER=$(git log --date=format:%Y%m%d --pretty=%cd.%h -n 1)
 
 echo "Build and package Linux Kernel."
-pushd /${BUILD_DIR}${LINUX_SRC} > /dev/null
-fakeroot make-kpkg --initrd --append-to-version="${GIT_VER}" --revision=3 --jobs $(nproc) kernel_image
-mv ../*.deb /
+pushd /${BUILD_DIR}/${LINUX_SRC} > /dev/null
+make-kpkg clean
+fakeroot make-kpkg --initrd --append-to-version="${GIT_VER}" --revision=4 --jobs $(nproc) kernel_image
+if [ -z "$3" ]; then
+    mv ../*.deb /
+else
+    mv ../*.deb "${3}"
+fi
 popd > /dev/null
 
 exit 0
